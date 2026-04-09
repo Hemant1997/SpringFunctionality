@@ -25,6 +25,7 @@ public class MainController {
     @PostMapping("/add")
     public boolean addEmployee(@RequestBody Employee employee) {
     	employee.setDate(LocalDateTime.now());
+    	System.out.println(employee);
     	return employeeService.addEmployee(employee);
     }
    
