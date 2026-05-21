@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,15 +31,10 @@ public class UserController {
     
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
-	@PostMapping("/add")
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-    	Boolean result=userService.saveUser(user);
-    	if(result) {
-    		return new ResponseEntity<>(HttpStatus.OK);
-    	}
-    	return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+
 	
 	 @GetMapping("/getAll")
 	    public ResponseEntity<?> getAllEmployee(){
@@ -46,17 +44,22 @@ public class UserController {
 	    	}
 	    	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
-	 
-	 @PutMapping("/update")
-	 public ResponseEntity<?> findEmployeeById(@RequestBody User user){
-	 User user2=userService.findUserByUserName(user.getUsername());
-		if(!user2.equals(null)) {
+
+	@PutMapping("/update")
+	public ResponseEntity<?> findEmployeeById(@RequestBody User user) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		User user2 = userService.findUserByUserName(username); // use logged-in user, not request body
+		if (user2 != null) {
 			user2.setUsername(user.getUsername());
-			user2.setPassword(user.getPassword());
-			userService.saveUser(user2);
+			// only re-encode if a new password is provided
+			if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+				user2.setPassword(passwordEncoder.encode(user.getPassword()));
+			}
+			userService.updateUser(user2); // ← use new method
 		}
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
-	 }
+	}
 	 
 
 	

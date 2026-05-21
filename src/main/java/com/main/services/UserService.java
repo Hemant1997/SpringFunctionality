@@ -26,16 +26,18 @@ public class UserService {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
-	 public boolean saveUser(User user) {
-		 user.setPassword(passwordEncoder.encode(user.getPassword()));
-		 user.setRoles(Arrays.asList("USER"));
-		User e= userRepository.save(user);
-		if(e!=null) {
-			return true;
-		}
-		return false;
-	 }
+	public boolean saveUser(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword())); // only for new users
+		user.setRoles(Arrays.asList("USER"));
+		User e = userRepository.save(user);
+		return e != null;
+	}
 
+	// NEW METHOD — for updates, password is already encoded
+	public boolean updateUser(User user) {
+		User e = userRepository.save(user);
+		return e != null;
+	}
 	public List<User> getAll() {
 		// TODO Auto-generated method stub
 		List<User> list=userRepository.findAll();
@@ -48,7 +50,7 @@ public class UserService {
 	}
 	
 	public User findUserByUserName(String name) {
-	 User user=	userRepository.findUserByUsername(name);
+	 User user=	userRepository.findByUsername(name);
 	return user;
 	}
 

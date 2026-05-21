@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ import com.main.services.UserService;
 
 @RestController
 @RequestMapping("/Employee")
-public class MainController {
+public class EmployeeController {
     
 	
 	@Autowired
@@ -36,9 +37,11 @@ public class MainController {
 	private UserService userService;
 	
 	
-    @PostMapping("/add/{username}")
-    public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee,@PathVariable String username) {
+    @PostMapping("/add")
+    public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
     	try {
+			Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+			String username=authentication.getName();
     		employee.setDate(LocalDateTime.now());
     		
     		employeeService.addEmployee(employee,username);
@@ -48,8 +51,10 @@ public class MainController {
     	}
     }
    
-    @GetMapping("/getAll/{username}")
-    public ResponseEntity<?> getAllEmployeeByUsername(@PathVariable String username){
+    @GetMapping
+    public ResponseEntity<?> getAllEmployeeByUsername(){
+		Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+		String username=authentication.getName();
       User user=userService.findUserByUserName(username);
     	List<Employee> list=user.getList();
     	if(!list.isEmpty()) {

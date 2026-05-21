@@ -3,6 +3,7 @@ package com.main.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.main.repositries.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,21 @@ public class EmployeeServices {
     @Autowired
     private UserService userService;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@Transactional
 	public void addEmployee(Employee employee, String username) {
-
-		try{
-			User user=userService.findUserByUserName(username);
-			Employee e=erepo.save(employee);
+		try {
+			User user = userService.findUserByUserName(username);
+			Employee e = erepo.save(employee);
 			user.getList().add(e);
-			userService.saveUser(user);
-
-		}
-		catch (Exception e){
+			userRepository.save(user);  // ← save directly, no re-encoding
+		} catch (Exception e) {
 			System.out.println(e);
-			throw  new RuntimeException("something went wrong");
+			throw new RuntimeException("something went wrong");
 		}
-
 	}
-
 	public List<Employee >getAll() {
 		// TODO Auto-generated method stub
 		return erepo.findAll();
