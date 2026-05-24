@@ -54,6 +54,13 @@ public class UserService {
 	return user;
 	}
 
-	 
-    
+
+	public boolean saveNewUser(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword())); // only for new users
+		user.setRoles(Arrays.asList("USER"));
+		User e = userRepository.save(user);
+		if(e!=null)
+			return true;
+		return false;
+	}
 }
