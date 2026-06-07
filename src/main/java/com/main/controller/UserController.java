@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.main.api.responce.WeatherResponse;
+import com.main.services.WeatherService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,8 +35,9 @@ public class UserController {
 	private UserService userService;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
 
+	@Autowired
+	private WeatherService weatherService;
 	
 	 @GetMapping("/getAll")
 	    public ResponseEntity<?> getAllEmployee(){
@@ -72,5 +75,18 @@ public class UserController {
 		}
 
 		return new ResponseEntity<>("Failed to create user", HttpStatus.BAD_REQUEST);
+	}
+
+	@GetMapping("/getWeather")
+	public ResponseEntity<?> getWeather(){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		WeatherResponse response=weatherService.getWeatherDetails("Mumbai");
+		String greeting="";
+		if(response!=null){
+			greeting="weather feel like a "+response.getCurrent().getTemperature()+" °C";
+		}
+		return  new ResponseEntity<>("Hi "+authentication.getName()+" "+greeting,HttpStatus.OK);
+
+
 	}
 }
