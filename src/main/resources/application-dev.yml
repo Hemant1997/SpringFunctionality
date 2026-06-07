@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: RestApiPractise
+
+  mongodb:
+    uri: mongodb+srv://balkhandehemantkumar1997_db_user:HS0fz62zTlh2RcE1@cluster0.myplct6.mongodb.net/?appName=Cluster0
+    database: Employeedb
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+server:
+  port: 8080

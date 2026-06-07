@@ -5,7 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,21 +19,35 @@ import com.main.entities.Employee;
 import com.main.entities.User;
 
 @Service
+@Slf4j
 public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	// ✅ Constructor injection
+
 	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 	public boolean saveUser(User user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword())); // only for new users
-		user.setRoles(Arrays.asList("USER"));
-		User e = userRepository.save(user);
-		return e != null;
+		try {
+			log.info("Attempting to save user: {}", user.getUsername());
+
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			user.setRoles(Arrays.asList("USER"));
+
+			User savedUser = userRepository.save(user);
+
+			return savedUser != null;
+
+		} catch (Exception e) {
+			log.error("Error while saving user: {}", user.getUsername(), e);
+			log.warn("tring warn");
+			log.info("tring info");
+			log.trace("trying trace" );
+			return false;
+		}
 	}
 
 	// NEW METHOD — for updates, password is already encoded
@@ -56,11 +73,17 @@ public class UserService {
 
 
 	public boolean saveNewUser(User user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword())); // only for new users
-		user.setRoles(Arrays.asList("USER"));
-		User e = userRepository.save(user);
-		if(e!=null)
+		try {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			user.setRoles(Arrays.asList("USER"));
+
+			userRepository.save(user);
 			return true;
-		return false;
+
+		} catch (Exception e) {
+			log.error("Something went wrong while saving user", e);
+			return false;
+		}
+
 	}
 }

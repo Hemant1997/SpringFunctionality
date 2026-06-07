@@ -60,7 +60,17 @@ public class UserController {
 		}
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
-	 
 
-	
+
+	@PostMapping("/create")
+	public ResponseEntity<?> createUser(@RequestBody User user) {
+
+		boolean created = userService.saveUser(user);
+
+		if (created) {
+			return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
+		}
+
+		return new ResponseEntity<>("Failed to create user", HttpStatus.BAD_REQUEST);
+	}
 }
